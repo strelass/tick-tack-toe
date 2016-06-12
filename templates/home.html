@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="col col-md-offset-3 col-md-4">
+    <div class="jumbotron">
+        {% if request.user.is_authenticated %}
+            <p><a href="{% url "lobby" %}">Play Game</a></p>
+        {% else %}
+            <p>Hi there! Visit <a href="{% url 'admin:login' %}">SuperAdmin</a></p>
+        {% endif %}
+    </div>
+    </div>
+{% endblock %}

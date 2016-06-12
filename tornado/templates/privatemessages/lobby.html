@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <td>{% trans "Name" %}</td>
+                <td>{% trans "Field size" %}</td>
+                <td>{% trans "Status" %}</td>
+                <td>{% trans "Winner" %}</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for foo in games %}
+            <tr>
+                <td><a href="{% url "game" foo.id %}">{{ foo.name }}</a></td>
+                <td>{{ foo.sizeX }}x{{ foo.sizeY }}</td>
+                <td>{{ foo.get_status_display }}</td>
+                <td>
+                    {% if foo.winner %}
+                        {{ foo.winner.username }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="#" class="btn btn-primary">{% trans "Create new game" %}</a>
+{% endblock %}

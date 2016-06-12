@@ -1,0 +1,32 @@
+header {
+  width: 100%; }
+
+html {
+  position: relative;
+  min-height: 100%; }
+
+body {
+  margin-bottom: 80px !important; }
+
+footer {
+  width: 100% !important;
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  /*color: #666;*/
+  color: #4cae4c;
+  clear: both;
+  padding: 20px 0;
+  text-align: center;
+  /*background: #F8F7F7;*/
+  background: #101010;
+  border-top: 1px solid #F2F2F2; }
+
+.footer a {
+  text-decoration: none;
+  color: #666666;
+  font-weight: bold; }
+
+.footer a:hover {
+  /*color: #000;*/
+  color: #F2F2F2; }
