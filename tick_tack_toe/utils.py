@@ -6,7 +6,7 @@ import redis
 
 from django.utils import dateformat
 
-from tornado.models import Message, Move, Game
+from tick_tack_toe.models import Message, Move, Game
 
 
 def json_response(obj):
@@ -45,6 +45,15 @@ def send_message(thread_id,
             key,
             1
         )
+
+
+def join_game(game_id, username):
+    game_id = str(game_id)
+    r = redis.StrictRedis()
+    r.publish("".join(["thread_", game_id, "_game"]), json.dumps({
+        "stat": "JOIN",
+        "newbie": username,
+    }))
 
 
 def try_to_make_move(game, move, gamer):

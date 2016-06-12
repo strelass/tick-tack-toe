@@ -43,6 +43,18 @@ function activate_game(game_id, user, n, m, turn) {
 
 	DrawGrid();
 
+	$(".move").each(function() {
+        move = $(this).context.textContent;
+        gamer = parseInt(move.split("-")[0]);
+        x = parseInt(move.split("-")[1].split(":")[0]);
+        y = parseInt(move.split("-")[1].split(":")[1]);
+        if (gamer % 2 == 1) {
+            DrawCross(x, y);
+        } else {
+            DrawEllipse(x, y);
+        }
+    });
+
 	canvas.addEventListener('click', function(event) {
 		if (turn) {
 		    var absX = event.pageX - canvasLeft,
@@ -58,6 +70,22 @@ function activate_game(game_id, user, n, m, turn) {
     	}
 	}, false);
 
+    function alert_join(name) {
+        gamer = document.createElement("div");
+        gamer.setAttribute("class", "gamer");
+        gamer.innerHTML = name;
+        $("#gamers").append(gamer);
+        alert(name + " joined your game!")
+    }
+
+    function alert_left(name) {
+         $(".gamer").each(function() {
+             if ($(this).context.innerText == name)
+                $(this).remove();
+         });
+        alert(name + " left from your game!");
+    }
+
 	function end_game(winner) {
 		alert("Winner is " + winner);
 	}
@@ -68,11 +96,20 @@ function activate_game(game_id, user, n, m, turn) {
         ws = new WebSocket("ws://127.0.0.1:8888/game/" + game_id + "/");
         ws.onmessage = function(event) {
             var message_data = JSON.parse(event.data);
+
             console.log(message_data);
+
             if (message_data.error)
                 alert("Error");
             else
             switch (message_data.stat) {
+                case "JOIN":
+                    name = message_data.newbie;
+                    alert_join(name);
+                    break;
+                case "LEFT":
+                    name = message_data.leaver;
+                    alert_left(name);
             	case "PROCESS":
             		cellX = parseInt(message_data.x);
 		            cellY = parseInt(message_data.y);
@@ -114,5 +151,4 @@ function activate_game(game_id, user, n, m, turn) {
     	alert("Your browser doesn't support websockets, please try to install new browser.")
         return false;
     }
-
 }

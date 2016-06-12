@@ -30,7 +30,7 @@ LIB_APPS = [
     'allauth.socialaccount.providers.google',
 ]
 MY_APPS = [
-    'tornado',
+    'tick_tack_toe',
 ]
 DJANGO_APPS = [
     'django.contrib.auth',
@@ -59,7 +59,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'websockets',
+        'NAME': 'tick_tack_toe',
         'USER': 'root',
         'PASSWORD': 'root',
     }
@@ -142,5 +142,5 @@ SESSION_ENGINE = 'redis_sessions.session'
 
 API_KEY = '$0m3-U/\/1qu3-K3Y'
 
-SEND_MESSAGE_API_URL = 'http://127.0.0.1:8000/tornado/send_message_api'
-MAKE_MOVE_API_URL = 'http://127.0.0.1:8000/tornado/make_move_api'
+SEND_MESSAGE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/send_message_api'
+MAKE_MOVE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/make_move_api'

@@ -6,7 +6,7 @@ import tornado.ioloop
 
 from django.core.management.base import BaseCommand, CommandError
 
-from tornado.tornadoapp import application
+from tick_tack_toe.tornadoapp import application
 
 
 class Command(BaseCommand):

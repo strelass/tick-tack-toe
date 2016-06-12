@@ -13,7 +13,7 @@ import tornado.httpclient
 from django.conf import settings
 from importlib import import_module
 from django.contrib.auth.models import User
-from tornado.models import Thread, Game
+from tick_tack_toe.models import Thread, Game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
@@ -172,6 +172,10 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         self.write_message(str(result.body))
 
     def on_close(self):
+        # c.publish(self.channel, json.dumps({
+        #     "stat": "LEFT",
+        #     "leaver": self.gamer_name,
+        # }))
         try:
             self.client.unsubscribe(self.channel)
         except AttributeError:

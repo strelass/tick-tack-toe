@@ -21,4 +21,18 @@ $(document).ready(function() {
 	</style>
 
 	<canvas id="canvas" width="400" height="400"></canvas>
+    <div id="moves">
+        <h2>Moves</h2>
+        {% for move in moves %}
+            <div class="move">{{ move }}</div>
+        {% endfor %}
+    </div>
+
+    <div id="gamers">
+        <h2>Players</h2>
+        {% for participant in participants %}
+            <div class="gamer">{{ participant.username }}</div>
+        {% endfor %}
+    </div>
+
 {% endblock %}

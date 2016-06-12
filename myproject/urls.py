@@ -1,13 +1,13 @@
 from django.conf.urls import include, url
 
 from django.contrib import admin
-import tornado.views
+import tick_tack_toe.views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('allauth.urls')),
 
-    url(r'^tornado/', include('tornado.urls')),
+    url(r'^tick_tack_toe/', include('tick_tack_toe.urls')),
 
-    url(r'^$', tornado.views.home, name="home"),
+    url(r'^$', tick_tack_toe.views.home, name="home"),
 ]

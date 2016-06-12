@@ -1,6 +1,6 @@
 from django.contrib import admin
-from tornado.forms import GameForm, MoveForm
-from tornado.models import Game, Move
+from tick_tack_toe.forms import GameForm, MoveForm
+from tick_tack_toe.models import Game, Move
 
 
 class GameAdmin(admin.ModelAdmin):

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <table id="games" class="table">
+        <thead>
+            <tr>
+                <th>{% trans "Id" %}</th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Field size" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th>{% trans "Winner" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for foo in games %}
+            <tr>
+                <td>{{ foo.id }}</td>
+                <td>{{ foo.name }}</td>
+                <td>{{ foo.sizeX }}x{{ foo.sizeY }}</td>
+                <td>{{ foo.get_status_display }}</td>
+                <td>
+                    {% if foo.winner %}
+                        {{ foo.winner.username }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button id="new_game" type="button" class="btn btn-primary" data-toggle="modal" data-target="#new_game_modal">{% trans "Create new game" %}</button>
+
+    <div id="new_game_modal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="col-md-8 col-md-offset-2 modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">New Game</h4>
+          </div>
+          <div class="modal-body">
+            <form action="#" method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary btn-block">Create game</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="application/javascript">
+        $(document).ready(function() {
+            $('#games').find('tbody').on('click', 'tr', function () {
+                game_id = $(this).children()[0].innerHTML;
+                window.location.href += "../game/" + game_id + "/";
+            });
+        })
+    </script>
+{% endblock %}

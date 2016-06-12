@@ -1,5 +1,6 @@
-import re
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
 import redis
 
 from django.shortcuts import render_to_response, get_object_or_404, render
@@ -11,8 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
 from django.contrib.auth.models import User
-from tornado.models import Thread, Game
-from tornado.utils import json_response, send_message, make_move, try_to_make_move
+from tick_tack_toe.forms import GameForm, SimpleGameForm
+from tick_tack_toe.models import Thread, Game
+from tick_tack_toe.utils import *
 
 
 def home(request):
@@ -21,8 +23,27 @@ def home(request):
 
 @login_required
 def lobby(request):
-    games = Game.objects.all()
+    form = SimpleGameForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            game = form.save(commit=False)
+            game.turn = request.user
+            with transaction.atomic():
+                game.save()
+                game.participants.add(request.user)
+            return HttpResponseRedirect(reverse("game", kwargs={'game_id': game.id}))
+    games = Game.objects.all().order_by('-id')
+    paginator = Paginator(games, 25)
+    page = request.GET.get('page')
+    try:
+        games = paginator.page(page)
+    except PageNotAnInteger:
+        games = paginator.page(1)
+    except EmptyPage:
+        games = paginator.page(paginator.num_pages)
+
     context = {
+        "form": form,
         "games": games,
     }
     return render(request, "privatemessages/lobby.html", context)
@@ -31,8 +52,21 @@ def lobby(request):
 @login_required
 def game_view(request, game_id):
     game = get_object_or_404(Game, id=game_id)
+    if request.user not in game.participants.all() and game.status != "OPEN":
+        return HttpResponseRedirect(reverse("lobby"))
+    else:
+        if game.status == "OPEN" and game.participants.count() <= 1:
+            with transaction.atomic():
+                game.status = "IN_PROGRESS"
+                game.save()
+                game.participants.add(request.user)
+        join_game(game.id, request.user.username)
+    moves = game.move_set.all()
+    participants = game.participants.all()
     context = {
         "game": game,
+        "moves": moves,
+        "participants": participants,
     }
     return render(request, "privatemessages/game.html", context)
 
@@ -68,8 +102,6 @@ def make_move_view_api(request, game_id):
         move,
         gamer
     )
-    # ------------------------------PRINT----------------------------------------------
-    print result
 
     if "error" in result:
         return json_response(result["error"])

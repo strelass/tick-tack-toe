@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from tornado import views
+from tick_tack_toe import views
 
 urlpatterns = [
     url(r'^send_message/$', views.send_message_view, name="send_message"),

@@ -47,7 +47,7 @@ class Game(models.Model):
     status = models.CharField(
         max_length=64,
         choices=STATUS,
-        default="IN_PROGRESS",
+        default="OPEN",
     )
     winner = models.ForeignKey(
         User,
@@ -78,7 +78,7 @@ class Move(models.Model):
     gamer = models.ForeignKey(User)
 
     def __unicode__(self):
-        return "%s-%s:%s" % (self.num, self.x, self.y)
+        return "%s-%s:%s" % (self.num+1, self.x, self.y)
 
 
 def update_last_message_datetime(sender, instance, created, **kwargs):
