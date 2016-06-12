@@ -169,13 +169,19 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         http_client.fetch(request, self.handle_request)
 
     def show_new_moves(self, result):
-        self.write_message(str(result.body))
+        try:
+            self.write_message(str(result.body))
+        except:
+            pass
 
     def on_close(self):
-        # c.publish(self.channel, json.dumps({
-        #     "stat": "LEFT",
-        #     "leaver": self.gamer_name,
-        # }))
+        try:
+            c.publish(self.channel, json.dumps({
+                "stat": "LEFT",
+                "leaver": self.gamer_name,
+            }))
+        except:
+            pass
         try:
             self.client.unsubscribe(self.channel)
         except AttributeError:

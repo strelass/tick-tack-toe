@@ -6,7 +6,7 @@ import redis
 
 from django.utils import dateformat
 
-from tick_tack_toe.models import Message, Move, Game
+from tick_tack_toe.models import *
 
 
 def json_response(obj):
@@ -108,14 +108,3 @@ def make_move(game_id,
         "y": str(y),
         "uid": str(gamer_id),
     }))
-
-    new_status = game.status
-    if new_status == "WINNER":
-        r.publish("".join(["thread_", game_id, "_game"]), json.dumps({
-            "stat": new_status,
-            "winner": game.winner,
-        }))
-    if new_status == "DRAW":
-        r.publish("".join(["thread_", game_id, "_game"]), json.dumps({
-            "stat": new_status,
-        }))

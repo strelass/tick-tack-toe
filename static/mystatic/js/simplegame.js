@@ -114,9 +114,10 @@ function activate_game(game_id, user, n, m, turn) {
             		cellX = parseInt(message_data.x);
 		            cellY = parseInt(message_data.y);
 		            uid = message_data.uid;
+                    console.log("move by: " + uid + " me: " + user);
 		            if (uid == user) {
 		            	DrawCross(cellY, cellX);
-		            	//turn = false;
+		            	turn = false;
 		            } else {
 		            	DrawEllipse(cellY, cellX);
 		            	turn = true;

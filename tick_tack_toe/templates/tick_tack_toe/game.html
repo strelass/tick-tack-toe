@@ -3,10 +3,12 @@
 {% block head %}
 <script type="text/javascript">
 $(document).ready(function() {
-{#    if ({{ game.turn }} == {{ request.user }})#}
-{#        turn = true;#}
-{#    else turn = false;#}
-    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }}, true);
+    turn = {{ game.turn.id }};
+    me = {{ request.user.id }};
+    if (turn == me)
+        turn = true;
+    else turn = false;
+    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }}, turn);
 });
 </script>
 {% endblock %}

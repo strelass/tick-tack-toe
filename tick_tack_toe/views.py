@@ -46,7 +46,7 @@ def lobby(request):
         "form": form,
         "games": games,
     }
-    return render(request, "privatemessages/lobby.html", context)
+    return render(request, "tick_tack_toe/lobby.html", context)
 
 
 @login_required
@@ -55,7 +55,7 @@ def game_view(request, game_id):
     if request.user not in game.participants.all() and game.status != "OPEN":
         return HttpResponseRedirect(reverse("lobby"))
     else:
-        if game.status == "OPEN" and game.participants.count() <= 1:
+        if game.status == "OPEN" and request.user not in game.participants.all():
             with transaction.atomic():
                 game.status = "IN_PROGRESS"
                 game.save()
@@ -68,7 +68,7 @@ def game_view(request, game_id):
         "moves": moves,
         "participants": participants,
     }
-    return render(request, "privatemessages/game.html", context)
+    return render(request, "tick_tack_toe/game.html", context)
 
 
 @csrf_exempt
@@ -211,7 +211,7 @@ def messages_view(request):
     ).order_by("-last_message")
 
     if not threads:
-        return render_to_response('privatemessages/private_messages.html',
+        return render_to_response('tick_tack_toe/private_messages.html',
                                   {},
                                   context_instance=RequestContext(request))
 
@@ -227,7 +227,7 @@ def messages_view(request):
             "total_messages"
         )
 
-    return render_to_response('privatemessages/private_messages.html',
+    return render_to_response('tick_tack_toe/private_messages.html',
                               {
                                   "threads": threads,
                               },
@@ -278,7 +278,7 @@ def chat_view(request, thread_id):
     if tz:
         timezone.activate(tz)
 
-    return render_to_response('privatemessages/chat.html',
+    return render_to_response('tick_tack_toe/chat.html',
                               {
                                   "thread_id": thread_id,
                                   "thread_messages": messages,
