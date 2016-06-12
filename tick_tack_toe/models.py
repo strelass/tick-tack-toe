@@ -127,7 +127,7 @@ def update_game_util(game, field, startX, startY):
             count += check_roole(field, startX, startY, k[0], k[1])
         if count + 1 == combo:
             game.status = "WINNER"
-            game.winner = game.turn
+            game.winner = User.objects.get(id=field[startX][startY])
             game.save()
             r.publish("".join(["thread_", str(game.id), "_game"]), json.dumps({
                 "stat": game.status,
@@ -141,7 +141,9 @@ def update_game_util(game, field, startX, startY):
             "stat": game.status,
         }))
     if game.status == "IN_PROGRESS":
+        print game.turn
         game.turn = game.participants.exclude(id=game.turn.id).first()
+        print game.turn
 
 
 def check_roole(matrix, startX, startY, rooleX, rooleY):
