@@ -1,4 +1,4 @@
-function activate_game(game_id, user, n, m, turn) {
+function activate_game(game_id, user, n, m) {
 	var ws;
 
 	var canvas = document.getElementById("canvas"),
@@ -8,7 +8,8 @@ function activate_game(game_id, user, n, m, turn) {
 		maxH = ctx.canvas.height,
 		maxW = ctx.canvas.width,
 		cellH = maxH / n,
-		cellW = maxW / m;
+		cellW = maxW / m,
+		turn = false;
 
 	function DrawGrid(){
 		for(var i = 0; i < n; i++) {
@@ -86,6 +87,27 @@ function activate_game(game_id, user, n, m, turn) {
         alert(name + " left from your game!");
     }
 
+	function alert_start(uid) {
+		if (uid == user)
+			turn = true;
+		alert("The game has began. First turn for " + uid + ".");
+	}
+
+    function make_move(cellX, cellY, uid) {
+        console.log("move by: " + uid + " me: " + user);
+        if (uid == user) {
+            DrawCross(cellY, cellX);
+            turn = false;
+        } else {
+            DrawEllipse(cellY, cellX);
+            turn = true;
+        }
+        move = document.createElement("div");
+        move.setAttribute("class", "move");
+        move.innerHTML = uid + " - " + cellX + ":" + cellY;
+        $("#moves").append(move);
+    }
+
 	function end_game(winner) {
 		alert("Winner is " + winner);
 	}
@@ -110,22 +132,19 @@ function activate_game(game_id, user, n, m, turn) {
                 case "LEFT":
                     name = message_data.leaver;
                     alert_left(name);
+					break;
+				case "START":
+					uid = parseInt(message_data.turn);
+					alert_start(uid);
+					break;
             	case "PROCESS":
             		cellX = parseInt(message_data.x);
 		            cellY = parseInt(message_data.y);
 		            uid = message_data.uid;
-                    console.log("move by: " + uid + " me: " + user);
-		            if (uid == user) {
-		            	DrawCross(cellY, cellX);
-		            	turn = false;
-		            } else {
-		            	DrawEllipse(cellY, cellX);
-		            	turn = true;
-		            }
+                    make_move(cellX, cellY, uid);
             		break;
         		case "WINNER":
         			end_game(message_data.winner);
-            		ws.close();
         			break;
                 case "DRAW":
         			alert("draw!");
@@ -135,8 +154,7 @@ function activate_game(game_id, user, n, m, turn) {
     				alert(message_data.error);
     				break;
 				default:
-                    alert("Default here");
-					//alert(message_data);
+                    alert("Unknown status");
             }
         };
         ws.onclose = function(){
@@ -152,4 +170,8 @@ function activate_game(game_id, user, n, m, turn) {
     	alert("Your browser doesn't support websockets, please try to install new browser.")
         return false;
     }
+
+    $(document).close(function() {
+        ws.close();
+    });
 }

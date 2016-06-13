@@ -10,6 +10,7 @@ class GameAdmin(admin.ModelAdmin):
         'name',
         'sizeX',
         'sizeY',
+        'combo',
         'status',
         'winner',
     ]

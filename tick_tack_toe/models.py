@@ -35,6 +35,11 @@ class Game(models.Model):
         blank=True,
         default=3,
     )
+    combo = models.IntegerField(
+        null=False,
+        blank=True,
+        default=3,
+    )
     participants = models.ManyToManyField(User)
     turn = models.ForeignKey(
         User,
@@ -42,6 +47,7 @@ class Game(models.Model):
     )
     STATUS = (
         ("OPEN", "Open"),
+        ("START", "Start"),
         ("IN_PROGRESS", "In progress"),
         ("DRAW", "Draw"),
         ("WINNER", "Winner"),
@@ -66,6 +72,8 @@ class Game(models.Model):
         elif self.status == "WINNER":
             return "%s" % self.name
             # return "Game %s was won by %s" % (self.id, self.winner.username)
+        elif self.status == "START":
+            return "Game has started"
         else:
             return "Game %s is open" % self.id
 
@@ -111,7 +119,10 @@ def update_game(sender, instance, created, **kwargs):
 
 def update_game_util(game, field, startX, startY):
     #     TODO: dynamically change game logic
-    combo = 3
+    if game.status == "START":
+        game.status = "IN_PROGRESS"
+        game.save()
+    combo = game.combo
     linear_rools = [
         ((0, 1), (0, -1)),
         ((1, 0), (-1, 0)),
@@ -141,9 +152,9 @@ def update_game_util(game, field, startX, startY):
             "stat": game.status,
         }))
     if game.status == "IN_PROGRESS":
-        print game.turn
         game.turn = game.participants.exclude(id=game.turn.id).first()
-        print game.turn
+        game.save()
+        print "Now is %s turn" % game.turn
 
 
 def check_roole(matrix, startX, startY, rooleX, rooleY):

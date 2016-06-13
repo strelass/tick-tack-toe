@@ -3,12 +3,7 @@
 {% block head %}
 <script type="text/javascript">
 $(document).ready(function() {
-    turn = {{ game.turn.id }};
-    me = {{ request.user.id }};
-    if (turn == me)
-        turn = true;
-    else turn = false;
-    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }}, turn);
+    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }});
 });
 </script>
 {% endblock %}
@@ -21,7 +16,7 @@ $(document).ready(function() {
 			margin: 50px auto;
 		}
 	</style>
-
+    <a href="{% url "lobby" %}" class="btn btn-default">Go to lobby</a>
 	<canvas id="canvas" width="400" height="400"></canvas>
     <div id="moves">
         <h2>Moves</h2>

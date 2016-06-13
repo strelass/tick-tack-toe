@@ -55,12 +55,20 @@ def game_view(request, game_id):
     if request.user not in game.participants.all() and game.status != "OPEN":
         return HttpResponseRedirect(reverse("lobby"))
     else:
+        join_game(game.id, request.user.username)
         if game.status == "OPEN" and request.user not in game.participants.all():
             with transaction.atomic():
-                game.status = "IN_PROGRESS"
-                game.save()
+                game.status = "START"
                 game.participants.add(request.user)
-        join_game(game.id, request.user.username)
+                game.turn = game.participants.first()
+                game.save()
+                r = redis.StrictRedis()
+                r.hset(
+                    "".join(["thread_", str(game_id), "_game"]),
+                    "turn",
+                    str(game.turn.id)
+                )
+            # start_game(game_id, game.turn.id)
     moves = game.move_set.all()
     participants = game.participants.all()
     context = {
@@ -102,7 +110,7 @@ def make_move_view_api(request, game_id):
         move,
         gamer
     )
-
+    print "MAKE_MOVE_VIEW_API: %s, res: %s" % (move, result)
     if "error" in result:
         return json_response(result["error"])
 

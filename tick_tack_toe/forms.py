@@ -6,14 +6,14 @@ class GameForm(forms.ModelForm):
 
     class Meta:
         model = Game
-        fields = ['name', 'sizeX', 'sizeY', 'participants', 'turn']
+        fields = ['name', 'sizeX', 'sizeY', 'combo', 'participants', 'turn']
 
 
 class SimpleGameForm(forms.ModelForm):
 
     class Meta:
         model = Game
-        fields = ['name', 'sizeX', 'sizeY']
+        fields = ['name', 'sizeX', 'sizeY', 'combo']
 
 
 class MoveForm(forms.ModelForm):

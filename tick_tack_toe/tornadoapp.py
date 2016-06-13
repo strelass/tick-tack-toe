@@ -14,6 +14,7 @@ from django.conf import settings
 from importlib import import_module
 from django.contrib.auth.models import User
 from tick_tack_toe.models import Thread, Game
+from tick_tack_toe.utils import start_game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
@@ -130,18 +131,21 @@ class GameHandler(tornado.websocket.WebSocketHandler):
             self.close()
             return
 
-        # TODO: use this code only once when the game starts
-        r = redis.StrictRedis()
-        r.hset(
-            "".join(["thread_", game_id, "_game"]),
-            "move_num",
-            0
-        )
-
         self.channel = "".join(['thread_', game_id, '_game'])
         self.client.subscribe(self.channel)
         self.game_id = game_id
         self.client.listen(self.show_new_moves)
+
+        # Makes the game start
+        game = Game.objects.get(id=game_id)
+        if game.status == "START":
+            start_game(game_id, game.turn.id)
+            r = redis.StrictRedis()
+            r.hset(
+                "".join(["thread_", game_id, "_game"]),
+                "move_num",
+                0
+            )
 
     def handle_request(self, response):
         pass
