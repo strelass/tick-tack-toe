@@ -3,7 +3,6 @@ import json
 import time
 import urllib
 
-import brukva
 import redis
 import tornado.web
 import tornado.websocket
@@ -29,7 +28,7 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         super(MessagesHandler, self).__init__(*args, **kwargs)
-        self.client = brukva.Client()
+        self.client = tornadoredis.Client()
         self.client.connect()
 
     def open(self, thread_id):
@@ -112,7 +111,7 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         super(GameHandler, self).__init__(*args, **kwargs)
-        self.client = brukva.Client()
+        self.client = tornadoredis.Client()
         self.client.connect()
 
     def open(self, game_id):

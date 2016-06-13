@@ -156,7 +156,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 #-----DEBUG-----
-SESSION_ENGINE = 'redis_sessions.session'
+# SESSION_ENGINE = 'redis_sessions.session'
 
 API_KEY = '$0m3-U/\/1qu3-K3Y'
 
