@@ -145,6 +145,10 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         # Makes the game start
         game = Game.objects.get(id=game_id)
         r = redis.StrictRedis()
+        r.publish(
+            "".join(["thread_", game_id, "_game"]), json.dumps({
+                "stat": "CONNECTED",
+            }))
         if game.status == "START":
             start_game(game_id, game.turn.id)
             r.hset(
