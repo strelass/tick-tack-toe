@@ -49,7 +49,7 @@ function activate_game(game_id, user, n, m) {
         gamer = parseInt(move.split("-")[0]);
         x = parseInt(move.split("-")[1].split(":")[0]);
         y = parseInt(move.split("-")[1].split(":")[1]);
-        if (gamer % 2 == 1) {
+        if (gamer == user) {
             DrawCross(x, y);
         } else {
             DrawEllipse(x, y);
@@ -108,6 +108,12 @@ function activate_game(game_id, user, n, m) {
         $("#moves").append(move);
     }
 
+    function alert_resume(uid) {
+        if (uid == user) {
+            turn = true;
+        }
+    }
+
 	function end_game(winner) {
 		alert("Winner is " + winner);
 	}
@@ -143,6 +149,10 @@ function activate_game(game_id, user, n, m) {
 		            uid = message_data.uid;
                     make_move(cellX, cellY, uid);
             		break;
+                case "RESUME":
+                    uid = parseInt(message_data.turn);
+                    alert_resume(uid);
+                    break;
         		case "WINNER":
         			end_game(message_data.winner);
         			break;
@@ -150,7 +160,7 @@ function activate_game(game_id, user, n, m) {
         			alert("draw!");
             		ws.close();
         			break;
-    			case "ERROR":
+    			case "error":
     				alert(message_data.error);
     				break;
 				default:
@@ -171,7 +181,4 @@ function activate_game(game_id, user, n, m) {
         return false;
     }
 
-    $(document).close(function() {
-        ws.close();
-    });
 }

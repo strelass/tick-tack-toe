@@ -68,7 +68,6 @@ def game_view(request, game_id):
                     "turn",
                     str(game.turn.id)
                 )
-            # start_game(game_id, game.turn.id)
     moves = game.move_set.all()
     participants = game.participants.all()
     context = {

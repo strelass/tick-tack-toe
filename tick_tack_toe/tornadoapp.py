@@ -138,14 +138,21 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
         # Makes the game start
         game = Game.objects.get(id=game_id)
+        r = redis.StrictRedis()
         if game.status == "START":
             start_game(game_id, game.turn.id)
-            r = redis.StrictRedis()
             r.hset(
                 "".join(["thread_", game_id, "_game"]),
                 "move_num",
                 0
             )
+        elif game.status == "IN_PROGRESS" and game.participants.\
+                filter(id=self.user_id).exists():
+            r.publish(
+                "".join(["thread_", game_id, "_game"]), json.dumps({
+                    "stat": "RESUME",
+                    "turn": str(game.turn.id),
+                }))
 
     def handle_request(self, response):
         pass
