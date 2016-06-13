@@ -34,7 +34,7 @@ class Command(BaseCommand):
             port = 8888
 
         self.http_server = tornado.httpserver.HTTPServer(application)
-        self.http_server.listen(port, address="127.0.0.1")
+        self.http_server.listen(port, address="python-arrowtimetable.rhcloud.com")
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)

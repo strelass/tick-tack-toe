@@ -18,7 +18,7 @@ from tick_tack_toe.utils import start_game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
-c = tornadoredis.Client()
+c = tornadoredis.Client(host=settings.SESSION_REDIS_HOST, port=settings.SESSION_REDIS_PORT)
 c.connect()
 
 
@@ -28,7 +28,10 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         super(MessagesHandler, self).__init__(*args, **kwargs)
-        self.client = tornadoredis.Client()
+        self.client = tornadoredis.Client(
+            host=settings.SESSION_REDIS_HOST,
+            port=settings.SESSION_REDIS_PORT
+        )
         self.client.connect()
 
     def open(self, thread_id):
@@ -111,7 +114,10 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         super(GameHandler, self).__init__(*args, **kwargs)
-        self.client = tornadoredis.Client()
+        self.client = tornadoredis.Client(
+            host=settings.SESSION_REDIS_HOST,
+            port=settings.SESSION_REDIS_PORT
+        )
         self.client.connect()
 
     def open(self, game_id):
