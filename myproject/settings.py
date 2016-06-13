@@ -2,6 +2,10 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+ON_OPENSHIFT = False
+if 'OPENSHIFT_REPO_DIR' in os.environ:
+    ON_OPENSHIFT = True
+
 DEFAULT_CHARSET = 'utf-8'
 
 SECRET_KEY = '=b_8$k&wjhoz#&fk2yk&9xpxo@i1+!(=g4_1!-j-pk%er&u*0s'
@@ -56,14 +60,30 @@ ROOT_URLCONF = 'myproject.urls'
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tick_tack_toe',
-        'USER': 'root',
-        'PASSWORD': 'root',
+if ON_OPENSHIFT:
+    DEBUG = False
+    ALLOWED_HOSTS = ['*']
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'python',
+            'USER': os.getenv('OPENSHIFT_MYSQL_DB_USERNAME'),
+            'PASSWORD': os.getenv('OPENSHIFT_MYSQL_DB_PASSWORD'),
+            'HOST': os.getenv('OPENSHIFT_MYSQL_DB_HOST'),
+            'PORT': os.getenv('OPENSHIFT_MYSQL_DB_PORT'),
+            }
     }
-}
+else:
+    DEBUG = True
+    ALLOWED_HOSTS = []
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'tick_tack_toe',
+            'USER': 'root',
+            'PASSWORD': 'root',
+        }
+    }
 
 TEMPLATES = [
     {
@@ -112,9 +132,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "static_root")
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "media_root")
-
+if ON_OPENSHIFT:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'wsgi', "static")
+    MEDIA_ROOT = os.path.join(os.environ.get('OPENSHIFT_DATA_DIR', ''), 'media')
+else:
+    STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "static_root")
+    MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "media_root")
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static", "mystatic"),
 )

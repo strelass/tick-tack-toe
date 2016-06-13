@@ -57,10 +57,10 @@ function activate_game(game_id, user, n, m) {
 
 	$(".move").each(function() {
         move = $(this).context.textContent;
-        gamer = parseInt(move.split("-")[0]);
+        gamer = move.split("-")[0].slice(0, -1);
         y = parseInt(move.split("-")[1].split(":")[0]);
         x = parseInt(move.split("-")[1].split(":")[1]);
-        if (gamer == user) {
+        if (gamer == find_gamer(user).name) {
             DrawCross(x, y);
         } else {
             DrawEllipse(x, y);

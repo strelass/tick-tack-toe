@@ -13,12 +13,13 @@ import tornado.httpclient
 from django.conf import settings
 from importlib import import_module
 from django.contrib.auth.models import User
+import tornadoredis
 from tick_tack_toe.models import Thread, Game
 from tick_tack_toe.utils import start_game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
-c = brukva.Client()
+c = tornadoredis.Client()
 c.connect()
 
 
