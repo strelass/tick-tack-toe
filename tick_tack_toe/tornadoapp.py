@@ -189,7 +189,7 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         try:
             c.publish(self.channel, json.dumps({
                 "stat": "LEFT",
-                "leaver": self.gamer_name,
+                "leaver": self.user_id,
             }))
         except:
             pass

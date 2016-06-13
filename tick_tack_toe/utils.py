@@ -47,12 +47,13 @@ def send_message(thread_id,
         )
 
 
-def join_game(game_id, username):
+def join_game(game_id, gamer_id, username):
     game_id = str(game_id)
     r = redis.StrictRedis()
     r.publish("".join(["thread_", game_id, "_game"]), json.dumps({
         "stat": "JOIN",
-        "newbie": username,
+        "gamer_id": str(gamer_id),
+        "gamer_name": username,
     }))
 
 

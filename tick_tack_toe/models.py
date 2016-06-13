@@ -89,7 +89,7 @@ class Move(models.Model):
     gamer = models.ForeignKey(User)
 
     def __unicode__(self):
-        return "%s-%s:%s" % (self.num + 1, self.x, self.y)
+        return "%s - %s:%s" % (self.gamer.username, self.x, self.y)
 
 
 def update_last_message_datetime(sender, instance, created, **kwargs):

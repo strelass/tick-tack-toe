@@ -3,13 +3,12 @@ function activate_game(game_id, user, n, m) {
 
 	var canvas = document.getElementById("canvas"),
 		ctx = canvas.getContext("2d"),
-		canvasLeft = canvas.offsetLeft,
-		canvasTop = canvas.offsetTop,
 		maxH = ctx.canvas.height,
 		maxW = ctx.canvas.width,
 		cellH = maxH / n,
 		cellW = maxW / m,
-		turn = false;
+		turn = false,
+        gamers = [];
 
 	function DrawGrid(){
 		for(var i = 0; i < m; i++) {
@@ -37,12 +36,24 @@ function activate_game(game_id, user, n, m) {
 		dev = 5;
 		halfCellH = cellH/2;
 		halfCellW = cellW/2;
+        radius = (cellW > cellH) ? cellH/2 : cellW/2;
+        radius -= dev;
 		ctx.beginPath();
-		ctx.arc(x*cellW + halfCellW, y*cellH + halfCellH, halfCellW - dev, halfCellH - dev, Math.PI * 2, true);
+		ctx.arc(x*cellW + halfCellW, y*cellH + halfCellH, radius, radius, Math.PI * 2, true);
 		ctx.stroke();
 	}
 
 	DrawGrid();
+
+    $(".gamer").each(function() {
+        gamer_node = $(this);
+        gamer = {
+            name: gamer_node.context.textContent,
+            id: parseInt(gamer_node.attr("id")),
+            node: gamer_node
+        };
+        gamers.push(gamer);
+    });
 
 	$(".move").each(function() {
         move = $(this).context.textContent;
@@ -56,10 +67,19 @@ function activate_game(game_id, user, n, m) {
         }
     });
 
+    function getMousePos(evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+    }
+
 	canvas.addEventListener('click', function(event) {
 		if (turn) {
-		    var absX = event.pageX - canvasLeft,
-		        absY = event.pageY - canvasTop;
+            position = getMousePos(event);
+		    var absX = position.x,
+		        absY = position.y;
 		    var y = parseInt(absX / cellW, 10);
             var x = parseInt(absY / cellH, 10);
 
@@ -71,26 +91,53 @@ function activate_game(game_id, user, n, m) {
     	}
 	}, false);
 
-    function alert_join(name) {
-        gamer = document.createElement("div");
-        gamer.setAttribute("class", "gamer");
-        gamer.innerHTML = name;
-        $("#gamers").append(gamer);
-        alert(name + " joined your game!")
+    function add_system_message(message, level) {
+        log = document.createElement("li");
+        log.setAttribute("class", "message " + level);
+        log.innerHTML = message;
+        $(".game-chat").append(log);
     }
 
-    function alert_left(name) {
-         $(".gamer").each(function() {
-             if ($(this).context.innerText == name)
-                $(this).remove();
-         });
-        alert(name + " left from your game!");
+    function alert_join(gamer_id, gamer_name) {
+        if (!find_gamer(gamer_id)) {
+            gamer = document.createElement("div");
+            gamer.setAttribute("class", "gamer_name");
+            gamer.setAttribute("id", "gamer_id");
+            gamer.innerHTML = name;
+
+            gamers.push({
+                id: gamer_id,
+                name: gamer_name,
+                node: gamer
+            });
+            $("#gamers").append(gamer);
+        }
+        add_system_message(gamer_name + " has joined the game.", "message-info");
+    }
+
+    function find_gamer(id) {
+        for(var i = 0; i < gamers.length; i++)
+            if (gamers[i].id == id)
+                return gamers[i];
+        return null;
+    }
+
+    function alert_left(gamer_id) {
+        gamer = find_gamer(gamer_id);
+        gamer.node.remove();
+        leaver_name = gamer.name;
+        gamers = gamers.filter(function (el) {
+                      return el.id !== gamer_id;
+                 }
+        );
+        add_system_message(leaver_name + " has left the game.", "message-info");
     }
 
 	function alert_start(uid) {
 		if (uid == user)
 			turn = true;
-		alert("The game has began. First turn for " + uid + ".");
+        gamer = find_gamer(uid);
+        add_system_message("Let the game begins. First turn for " + gamer.name + ".", "message-info");
 	}
 
     function make_move(cellX, cellY, uid) {
@@ -104,7 +151,8 @@ function activate_game(game_id, user, n, m) {
         }
         move = document.createElement("div");
         move.setAttribute("class", "move");
-        move.innerHTML = uid + " - " + cellX + ":" + cellY;
+        gamer = find_gamer(uid);
+        move.innerHTML = gamer.name + " - " + cellX + ":" + cellY;
         $("#moves").append(move);
     }
 
@@ -115,7 +163,7 @@ function activate_game(game_id, user, n, m) {
     }
 
 	function end_game(winner) {
-		alert("Winner is " + winner);
+        add_system_message("The Winner is " + winner + "!", "message-success");
 	}
 
 	function start_game_ws() {
@@ -132,8 +180,9 @@ function activate_game(game_id, user, n, m) {
             else
             switch (message_data.stat) {
                 case "JOIN":
-                    name = message_data.newbie;
-                    alert_join(name);
+                    id = message_data.gamer_id;
+                    name = message_data.gamer_name;
+                    alert_join(id, name);
                     break;
                 case "LEFT":
                     name = message_data.leaver;
@@ -161,7 +210,7 @@ function activate_game(game_id, user, n, m) {
             		ws.close();
         			break;
     			case "error":
-    				alert(message_data.error);
+    				add_system_message(message_data.error, "message-error");
     				break;
 				default:
                     alert("Unknown status");

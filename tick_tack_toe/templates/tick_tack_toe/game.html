@@ -15,21 +15,97 @@ $(document).ready(function() {
 			border: 1px solid blue;
 			margin: 50px auto;
 		}
+        .content {
+            position: relative;
+            width: 75%;
+            float: left;
+            height: 100%;
+        }
+        .content-header {
+            position: static;
+            height: 10%;
+            box-sizing: border-box;
+        }
+        .content-body {
+            margin-left: 1%;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .content-middle {
+            display: inline-block;
+            width: 59%;
+        }
+        .content-left {
+            width: 19%;
+            float: left;
+        }
+        .content-right {
+            width: 19%;
+            float: right;
+        }
+        .side-bar {
+            position: relative;
+            width: 25%;
+            float: right;
+            height: 100%;
+        }
+        .side-bar .panel {
+            height: 20px;
+        }
+        .side-bar .game-chat {
+            position: absolute;
+            top: 20px;
+            bottom: 0;
+            width: 100%;
+            margin-bottom: 51px;
+            margin-top: 20px;
+            overflow-y: scroll;
+            background-color: #e7e7e7;
+            box-sizing: border-box;
+        }
+        .message-info {
+            background-color: #31b0d5;
+        }
+        .message.success {
+            background-color: chartreuse;
+        }
 	</style>
-    <a href="{% url "lobby" %}" class="btn btn-default">Go to lobby</a>
-	<canvas id="canvas" width="400" height="400"></canvas>
-    <div id="moves">
-        <h2>Moves</h2>
-        {% for move in moves %}
-            <div class="move">{{ move }}</div>
-        {% endfor %}
+
+    <div class="content">
+        <div class="content-header">
+            <div class="game-status">
+                <h1>Game in progress</h1>
+            </div>
+        </div>
+        <div class="content-middle content-body">
+            <canvas id="canvas" width="400" height="400"></canvas>
+        </div>
+        <div class="content-left content-body">
+            <div id="moves">
+                <h2>Moves</h2>
+                {% for move in moves %}
+                    <div class="move">{{ move }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="content-right content-body">
+            <div id="gamers">
+                <h2>Players</h2>
+                {% for participant in participants %}
+                    <div class="gamer" id="{{ participant.id }}">{{ participant.username }}</div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <div id="gamers">
-        <h2>Players</h2>
-        {% for participant in participants %}
-            <div class="gamer">{{ participant.username }}</div>
-        {% endfor %}
+    <div class="side-bar">
+        <div class="panel">
+            <a href="{% url "lobby" %}" class="btn btn-default">Go to lobby</a>
+        </div>
+        <div class="game-chat">
+
+        </div>
     </div>
+
 
 {% endblock %}

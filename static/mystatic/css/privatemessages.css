@@ -1,13 +1,5 @@
 html, body {
-    height: 100%;
     margin: 0;
-}
-
-body {
-    font-family: Geneva, Arial, Helvetica, sans-serif;
-    font-size: 14px;
-    color: #000;
-    background: #fff;
 }
 
 textarea, form p.name input {

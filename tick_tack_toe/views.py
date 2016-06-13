@@ -55,11 +55,12 @@ def game_view(request, game_id):
     if request.user not in game.participants.all() and game.status != "OPEN":
         return HttpResponseRedirect(reverse("lobby"))
     else:
-        join_game(game.id, request.user.username)
+        user = request.user
+        join_game(game.id, user.id, user.username)
         if game.status == "OPEN" and request.user not in game.participants.all():
             with transaction.atomic():
                 game.status = "START"
-                game.participants.add(request.user)
+                game.participants.add(user)
                 game.turn = game.participants.first()
                 game.save()
                 r = redis.StrictRedis()
