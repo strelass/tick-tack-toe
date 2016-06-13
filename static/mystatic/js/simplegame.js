@@ -167,7 +167,7 @@ function activate_game(game_id, user, n, m) {
 	}
 
 	function start_game_ws() {
-        ws = new WebSocket("ws://127.3.77.1:8080/game/" + game_id + "/");
+        ws = new WebSocket("ws://127.3.77.1:8888/game/" + game_id + "/");
         ws.onmessage = function(event) {
             var message_data = JSON.parse(event.data);
 
