@@ -5,6 +5,7 @@ import tornado.httpserver
 import tornado.ioloop
 
 from django.core.management.base import BaseCommand, CommandError
+from myproject import settings
 
 from tick_tack_toe.tornadoapp import application
 
@@ -34,7 +35,7 @@ class Command(BaseCommand):
             port = 8888
 
         self.http_server = tornado.httpserver.HTTPServer(application)
-        self.http_server.listen(port, address="python-arrowtimetable.rhcloud.com")
+        self.http_server.listen(port, address=settings.HOST_URL)
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)

@@ -155,19 +155,24 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_DB = 0
+SESSION_REDIS_PREFIX = 'session'
 if ON_OPENSHIFT:
-    SESSION_ENGINE = 'redis_sessions.session'
     SESSION_REDIS_HOST = os.getenv('OPENSHIFT_REDIS_HOST')
     SESSION_REDIS_PORT = os.getenv('OPENSHIFT_REDIS_PORT')
-    SESSION_REDIS_DB = 0
     SESSION_REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
-    SESSION_REDIS_PREFIX = 'session'
+else:
+    SESSION_REDIS_HOST = 'localhost'
+    SESSION_REDIS_PORT = 6379
 
 API_KEY = '$0m3-U/\/1qu3-K3Y'
 
 if ON_OPENSHIFT:
+    HOST_URL = 'python-arrowtimetable.rhcloud.com'
     SEND_MESSAGE_API_URL = 'http://python-arrowtimetable.rhcloud.com/tick_tack_toe/send_message_api'
     MAKE_MOVE_API_URL = 'http://python-arrowtimetable.rhcloud.com/tick_tack_toe/make_move_api'
 else:
+    HOST_URL = '127.0.0.1'
     SEND_MESSAGE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/send_message_api'
     MAKE_MOVE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/make_move_api'
