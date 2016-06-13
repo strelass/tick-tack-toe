@@ -110,7 +110,7 @@ def update_game(sender, instance, created, **kwargs):
         return
     game = instance.game
     moves = game.move_set.all()
-    field = [[0 for i in xrange(game.sizeX)] for i in xrange(game.sizeY)]
+    field = [[0 for i in xrange(game.sizeY)] for i in xrange(game.sizeX)]
     for move in moves:
         field[move.x][move.y] = move.gamer_id
     print field

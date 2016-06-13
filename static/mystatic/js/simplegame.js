@@ -12,8 +12,8 @@ function activate_game(game_id, user, n, m) {
 		turn = false;
 
 	function DrawGrid(){
-		for(var i = 0; i < n; i++) {
-			for(var k = 0; k < m; k++) {
+		for(var i = 0; i < m; i++) {
+			for(var k = 0; k < n; k++) {
 				ctx.rect(i*cellW, k*cellH, cellW, cellH);
 			}
 		}
@@ -47,8 +47,8 @@ function activate_game(game_id, user, n, m) {
 	$(".move").each(function() {
         move = $(this).context.textContent;
         gamer = parseInt(move.split("-")[0]);
-        x = parseInt(move.split("-")[1].split(":")[0]);
-        y = parseInt(move.split("-")[1].split(":")[1]);
+        y = parseInt(move.split("-")[1].split(":")[0]);
+        x = parseInt(move.split("-")[1].split(":")[1]);
         if (gamer == user) {
             DrawCross(x, y);
         } else {
@@ -60,8 +60,8 @@ function activate_game(game_id, user, n, m) {
 		if (turn) {
 		    var absX = event.pageX - canvasLeft,
 		        absY = event.pageY - canvasTop;
-		    var y = parseInt(absX / cellH, 10);
-		    var x = parseInt(absY / cellW, 10);
+		    var y = parseInt(absX / cellW, 10);
+            var x = parseInt(absY / cellH, 10);
 
 		    // Sending coordinates of current move
 		    if (ws.readyState != WebSocket.OPEN) {
