@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^application/media/(.+)$ $OPENSHIFT_DATA_DIR/media/$1 [L]
