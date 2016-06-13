@@ -1,3 +1,2 @@
-# Tornado WebSocket chat for your Django projects
+# Tornado WebSocket tick-tack-toe game for Django
 
-A detailed walkthrough is available in Russian: [WebSocket-чат на Tornado для вашего Django-проекта](http://habrahabr.ru/post/160123/)
