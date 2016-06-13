@@ -1,3 +1,4 @@
+import os
 import signal
 import time
 
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             port = 8888
 
         self.http_server = tornado.httpserver.HTTPServer(application)
-        self.http_server.listen(port, address=settings.HOST_URL)
+        self.http_server.listen(port=port, address=settings.HOST_URL)
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)
