@@ -155,8 +155,13 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-#-----DEBUG-----
-# SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = os.getenv('OPENSHIFT_REDIS_HOST')
+SESSION_REDIS_PORT = os.getenv('OPENSHIFT_REDIS_PORT')
+SESSION_REDIS_DB = 0
+SESSION_REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
+SESSION_REDIS_PREFIX = 'session'
 
 API_KEY = '$0m3-U/\/1qu3-K3Y'
 
