@@ -6,18 +6,6 @@ from django.contrib.auth.models import User
 import redis
 
 
-class Thread(models.Model):
-    participants = models.ManyToManyField(User)
-    last_message = models.DateTimeField(null=True, blank=True, db_index=True)
-
-
-class Message(models.Model):
-    text = models.TextField()
-    sender = models.ForeignKey(User)
-    thread = models.ForeignKey(Thread)
-    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
-
-
 class Game(models.Model):
     name = models.CharField(
         max_length=32,
@@ -65,17 +53,7 @@ class Game(models.Model):
     )
 
     def __unicode__(self):
-        if self.status == "IN_PROGRESS":
-            return "Game %s in progress" % self.id
-        elif self.status == "DRAW":
-            return "Game %s ends with draw" % self.id
-        elif self.status == "WINNER":
-            return "%s" % self.name
-            # return "Game %s was won by %s" % (self.id, self.winner.username)
-        elif self.status == "START":
-            return "Game has started"
-        else:
-            return "Game %s is open" % self.id
+        return "%s:%s" % (self.id, self.name)
 
 
 class Move(models.Model):
@@ -92,19 +70,6 @@ class Move(models.Model):
         return "%s - %s:%s" % (self.gamer.username, self.x, self.y)
 
 
-def update_last_message_datetime(sender, instance, created, **kwargs):
-    """
-    Update Thread's last_message field when
-    a new message is sent.
-    """
-    if not created:
-        return
-
-    Thread.objects.filter(id=instance.thread.id).update(
-        last_message=instance.datetime
-    )
-
-
 def update_game(sender, instance, created, **kwargs):
     if not created:
         return
@@ -119,6 +84,7 @@ def update_game(sender, instance, created, **kwargs):
 
 def update_game_util(game, field, startX, startY):
     #     TODO: dynamically change game logic
+    old_status = game.status
     if game.status == "START":
         game.status = "IN_PROGRESS"
         game.save()
@@ -140,21 +106,21 @@ def update_game_util(game, field, startX, startY):
             game.status = "WINNER"
             game.winner = User.objects.get(id=field[startX][startY])
             game.save()
-            r.publish("".join(["thread_", str(game.id), "_game"]), json.dumps({
-                "stat": game.status,
-                "winner": game.winner.username,
-            }))
             break
-    if game.sizeX * game.sizeY == len(game.move_set.all()):
+    if game.sizeX * game.sizeY == len(game.move_set.all()) and game.status != "WINNER":
         game.status = "DRAW"
         game.save()
-        r.publish("".join(["thread_", str(game.id), "_game"]), json.dumps({
-            "stat": game.status,
-        }))
     if game.status == "IN_PROGRESS":
         game.turn = game.participants.exclude(id=game.turn.id).first()
         game.save()
         print "Now is %s turn" % game.turn
+    if game.status != old_status:
+        r.publish(
+            "".join(["thread_", str(game.id), "_game"]), json.dumps({
+                "stat": "GAME_STATUS",
+                "game_status": game.status,
+                "winner": str(game.winner.id) if (game.status == "WINNER") else "",
+            }))
 
 
 def check_roole(matrix, startX, startY, rooleX, rooleY):
@@ -168,4 +134,3 @@ def check_roole(matrix, startX, startY, rooleX, rooleY):
 
 
 post_save.connect(update_game, sender=Move)
-post_save.connect(update_last_message_datetime, sender=Message)

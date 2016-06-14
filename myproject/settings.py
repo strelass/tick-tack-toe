@@ -171,9 +171,7 @@ API_KEY = '$0m3-U/\/1qu3-K3Y'
 if ON_OPENSHIFT:
     HOST_PORT = int(os.environ['OPENSHIFT_PYTHON_PORT'])
     HOST_URL = os.getenv('OPENSHIFT_PYTHON_IP')
-    SEND_MESSAGE_API_URL = 'http://python-arrowtimetable.rhcloud.com/tick_tack_toe/send_message_api'
     MAKE_MOVE_API_URL = 'http://python-arrowtimetable.rhcloud.com/tick_tack_toe/make_move_api'
 else:
     HOST_URL = '127.0.0.1'
-    SEND_MESSAGE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/send_message_api'
     MAKE_MOVE_API_URL = 'http://127.0.0.1:8000/tick_tack_toe/make_move_api'

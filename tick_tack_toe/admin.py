@@ -23,7 +23,7 @@ class GameAdmin(admin.ModelAdmin):
 class MoveAdmin(admin.ModelAdmin):
     form = MoveForm
     list_display = [
-        'x', 'y', 'game', 'gamer'
+        'game', 'x', 'y', 'gamer'
     ]
 
 

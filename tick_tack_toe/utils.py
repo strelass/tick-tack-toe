@@ -1,10 +1,6 @@
-import json
 import re
 from django.http import HttpResponse
 
-import redis
-
-from django.utils import dateformat
 
 from tick_tack_toe.models import *
 
@@ -14,37 +10,6 @@ def json_response(obj):
         json.dumps(obj),
         content_type='application/json',
     )
-
-
-def send_message(thread_id,
-                 sender_id,
-                 message_text,
-                 sender_name=None):
-
-    message = Message()
-    message.text = message_text
-    message.thread_id = thread_id
-    message.sender_id = sender_id
-    message.save()
-
-    thread_id = str(thread_id)
-    sender_id = str(sender_id)
-
-    r = redis.StrictRedis()
-
-    if sender_name:
-        r.publish("".join(["thread_", thread_id, "_messages"]), json.dumps({
-            "timestamp": dateformat.format(message.datetime, 'U'),
-            "sender": sender_name,
-            "text": message_text,
-        }))
-
-    for key in ("total_messages", "".join(["from_", sender_id])):
-        r.hincrby(
-            "".join(["thread_", thread_id, "_messages"]),
-            key,
-            1
-        )
 
 
 def join_game(game_id, gamer_id, username):
@@ -99,10 +64,6 @@ def make_move(game_id,
         "".join(["thread_", game_id, "_game"]),
         "move_num"
     )
-    # turn = r.hget(
-    #     "".join(["thread_", game_id, "_game"]),
-    #     "turn"
-    # )
     r.hincrby(
         "".join(["thread_", game_id, "_game"]),
         "move_num",

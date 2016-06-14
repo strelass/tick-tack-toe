@@ -10,73 +10,11 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content %}
-    <style>
-		#canvas {
-			display: block;
-			border: 1px solid blue;
-			margin: 50px auto;
-		}
-        .side-bar {
-            position: relative;
-            height: 92%;
-        }
-{#        .panel {#}
-{#            height: 20px;#}
-{#        }#}
-{#        .game-chat {#}
-{#            position: absolute;#}
-{#            top: 20px;#}
-{#            bottom: 0;#}
-{#            width: 100%;#}
-{#            margin-bottom: 101px;#}
-{#            margin-top: 20px;#}
-{#            overflow-y: scroll;#}
-{#            background-color: #e7e7e7;#}
-{#            box-sizing: border-box;#}
-{#        }#}
-        .game-chat {
-            height: 88%;
-            background-color: #e7e7e7;
-            overflow-y: scroll;
-        }
-        .panel {
-            height: 2%;
-        }
-        .message_form {
-            height: 10%;
-        }
-        .message-info {
-            background-color: #31b0d5;
-        }
-        .message.success {
-            background-color: chartreuse;
-        }
-{#        .message_form {#}
-{#            position: absolute;#}
-{#            bottom: 21px;#}
-{#            width: 100%;#}
-{#            box-sizing: border-box;#}
-{#        }#}
-        textarea {
-            width: 100%;
-            margin-right: 1px;
-            box-sizing: border-box;
-        }
-        .compose {
-            width: 100%;
-        }
-{#        .send #chat-send-button {#}
-{#            position: absolute;#}
-{#            bottom: 1px;#}
-{#            width: 100%;#}
-{#        }#}
-	</style>
-
     <div class="content col col-lg-10 col-md-9 col-sm-8 col-xs-12">
     <div class="row">
         <div class="content-header">
             <div class="game-status">
-                <h1>Game in progress</h1>
+                <h1></h1>
             </div>
         </div>
     </div>
@@ -87,10 +25,17 @@ $(document).ready(function() {
         <div class="col col-md-4 col-xs-12">
             <div class="col col-md-6 col-xs-6 content-right content-body">
                 <div id="gamers">
-                    <h2>Players</h2>
+                    <h2>{% trans "Players" %}</h2>
                     {% for participant in participants %}
-                        <div class="gamer" id="{{ participant.id }}">{{ participant.username }}</div>
+                        {% if participant.id == request.user.id %}
+                            <div class="gamer online" id="gamer-{{ participant.id }}">{{ participant.username }}</div>
+                        {% else %}
+                            <div class="gamer offline" id="gamer-{{ participant.id }}">{{ participant.username }}</div>
+                        {% endif %}
                     {% endfor %}
+                </div>
+                <div id="visitors">
+                    <h2>{% trans "Visitors" %}</h2>
                 </div>
             </div>
             <div class="col col-md-6 col-xs-6 content-left content-body">
