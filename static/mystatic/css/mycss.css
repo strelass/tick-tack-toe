@@ -75,3 +75,29 @@ textarea {
 .online {
     background-color: #4cae4c;
 }
+.row {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+span.glyphicon {
+    font-size:1.35em;
+}
+.pagination {
+    margin: 0;
+    margin-top: 20px;
+    position: relative;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}
+#new_game {
+    margin: 0;
+    margin-top: auto;
+    position: relative;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}
+.enter {
+    background-color: #9d9d9d;
+}

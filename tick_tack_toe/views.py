@@ -1,11 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
-from django.shortcuts import render_to_response, get_object_or_404, render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
@@ -29,18 +27,21 @@ def lobby(request):
                 game.participants.add(request.user)
             return HttpResponseRedirect(reverse("game", kwargs={'game_id': game.id}))
     games = Game.objects.all().order_by('-id')
-    paginator = Paginator(games, 25)
+    paginator = Paginator(games, 10)
     page = request.GET.get('page')
     try:
         games = paginator.page(page)
     except PageNotAnInteger:
         games = paginator.page(1)
+        page = 1
     except EmptyPage:
         games = paginator.page(paginator.num_pages)
-
+        page = paginator.num_pages
     context = {
         "form": form,
         "games": games,
+        "pages": range(1, paginator.num_pages+1),
+        "active_page": int(page),
     }
     return render(request, "tick_tack_toe/lobby.html", context)
 

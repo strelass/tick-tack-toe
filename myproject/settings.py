@@ -32,6 +32,8 @@ LIB_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_filters',
+    'rest_framework',
 ]
 MY_APPS = [
     'tick_tack_toe',

@@ -28,6 +28,16 @@ class Game(models.Model):
         blank=True,
         default=3,
     )
+    liniar_rool = models.BooleanField(
+        blank=True,
+        default=True,
+        verbose_name="Liniar rool",
+    )
+    diagonal_rool = models.BooleanField(
+        blank=True,
+        default=True,
+        verbose_name="Diagonal rool",
+    )
     participants = models.ManyToManyField(User)
     turn = models.ForeignKey(
         User,
@@ -82,6 +92,16 @@ def update_game(sender, instance, created, **kwargs):
     update_game_util(game, field, instance.x, instance.y)
 
 
+linear_rools = [
+        ((0, 1), (0, -1)),
+        ((1, 0), (-1, 0)),
+    ]
+diagonal_rools = [
+    ((1, 1), (-1, -1)),
+    ((-1, 1), (1, -1)),
+]
+
+
 def update_game_util(game, field, startX, startY):
     #     TODO: dynamically change game logic
     old_status = game.status
@@ -89,16 +109,13 @@ def update_game_util(game, field, startX, startY):
         game.status = "IN_PROGRESS"
         game.save()
     combo = game.combo
-    linear_rools = [
-        ((0, 1), (0, -1)),
-        ((1, 0), (-1, 0)),
-    ]
-    diagonal_rools = [
-        ((1, 1), (-1, -1)),
-        ((-1, 1), (1, -1)),
-    ]
+    rools = []
+    if game.liniar_rool:
+        rools += linear_rools
+    if game.diagonal_rool:
+        rools += diagonal_rools
     r = redis.StrictRedis()
-    for i in linear_rools + diagonal_rools:
+    for i in rools:
         count = 0
         for k in i:
             count += check_roole(field, startX, startY, k[0], k[1])
