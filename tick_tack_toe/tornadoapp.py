@@ -1,7 +1,11 @@
 import datetime
 import json
+import re
 import time
 import urllib
+import brukva
+from pip import logger
+from pip.utils import logging
 
 import redis
 import tornado.web
@@ -15,11 +19,9 @@ from django.contrib.auth.models import User
 import tornadoredis
 from tick_tack_toe.models import Thread, Game
 from tick_tack_toe.utils import start_game
+import logging
 
 session_engine = import_module(settings.SESSION_ENGINE)
-
-c = tornadoredis.Client(host=settings.SESSION_REDIS_HOST, port=int(settings.SESSION_REDIS_PORT))
-c.connect()
 
 
 class MessagesHandler(tornado.websocket.WebSocketHandler):
@@ -29,8 +31,8 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
     def __init__(self, *args, **kwargs):
         super(MessagesHandler, self).__init__(*args, **kwargs)
         self.client = tornadoredis.Client(
-            host=settings.SESSION_REDIS_HOST,
-            port=int(settings.SESSION_REDIS_PORT)
+            # host=settings.SESSION_REDIS_HOST,
+            # port=int(settings.SESSION_REDIS_PORT)
         )
         self.client.connect()
 
@@ -62,7 +64,7 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
             return
         if len(message) > 10000:
             return
-        c.publish(self.channel, json.dumps({
+        self.client.publish(self.channel, json.dumps({
             "timestamp": int(time.time()),
             "sender": self.sender_name,
             "text": message,
@@ -114,9 +116,9 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         super(GameHandler, self).__init__(*args, **kwargs)
-        self.client = tornadoredis.Client(
-            host=settings.SESSION_REDIS_HOST,
-            port=int(settings.SESSION_REDIS_PORT)
+        self.client = brukva.Client(
+            # host=settings.SESSION_REDIS_HOST,
+            # port=int(settings.SESSION_REDIS_PORT)
         )
         self.client.connect()
 
@@ -170,23 +172,34 @@ class GameHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, move):
         if not move:
             return
-        if len(move) > 100:
+        if len(move) > 1000 or not re.match("%(MOVE|MESS)%.*", move):
             return
         http_client = tornado.httpclient.AsyncHTTPClient()
-        request = tornado.httpclient.HTTPRequest(
-            "".join([
-                settings.MAKE_MOVE_API_URL,
-                "/",
-                self.game_id,
-                "/"
-            ]),
-            method="POST",
-            body=urllib.urlencode({
-                "move": move,
-                "api_key": settings.API_KEY,
-                "gamer_id": self.user_id,
-            })
-        )
+        if move[1:5] == "MOVE":
+            request = tornado.httpclient.HTTPRequest(
+                "".join([
+                    settings.MAKE_MOVE_API_URL,
+                    "/",
+                    self.game_id,
+                    "/"
+                ]),
+                method="POST",
+                body=urllib.urlencode({
+                    "move": move,
+                    "api_key": settings.API_KEY,
+                    "gamer_id": self.user_id,
+                })
+            )
+        else:
+            # move[1:5] == "MESS"
+            r = redis.StrictRedis()
+            r.publish(
+                "".join(["thread_", self.game_id, "_game"]), json.dumps({
+                    "stat": "MESSAGE",
+                    "message": move[6:],
+                    "user": self.gamer_name
+                }))
+            return
         http_client.fetch(request, self.handle_request)
 
     def show_new_moves(self, result):
@@ -197,7 +210,8 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         try:
-            c.publish(self.channel, json.dumps({
+            r = redis.StrictRedis()
+            r.publish(self.channel, json.dumps({
                 "stat": "LEFT",
                 "leaver": self.user_id,
             }))

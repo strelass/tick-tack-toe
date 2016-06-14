@@ -87,7 +87,7 @@ function activate_game(game_id, user, n, m) {
 		    if (ws.readyState != WebSocket.OPEN) {
 	            return false;
 	        }
-	        ws.send(x + ":" + y);
+	        ws.send("%MOVE%" + x + ":" + y);
     	}
 	}, false);
 
@@ -96,6 +96,10 @@ function activate_game(game_id, user, n, m) {
         log.setAttribute("class", "message " + level);
         log.innerHTML = message;
         $(".game-chat").append(log);
+    }
+
+    function add_message(name, message) {
+        add_system_message(name + ": " + message, "message-simple");
     }
 
     function alert_join(gamer_id, gamer_name) {
@@ -167,7 +171,8 @@ function activate_game(game_id, user, n, m) {
 	}
 
 	function start_game_ws() {
-        ws = new WebSocket("ws://python-arrowtimetable.rhcloud.com:8000/game/" + game_id + "/");
+        //ws = new WebSocket("ws://python-arrowtimetable.rhcloud.com:8000/game/" + game_id + "/");
+        ws = new WebSocket("ws://127.0.0.1:8888/game/" + game_id + "/");
         ws.onmessage = function(event) {
             var message_data = JSON.parse(event.data);
 
@@ -177,6 +182,8 @@ function activate_game(game_id, user, n, m) {
                 alert("Error");
             else
             switch (message_data.stat) {
+                case "CONNECTED":
+                    break;
                 case "JOIN":
                     id = message_data.gamer_id;
                     name = message_data.gamer_name;
@@ -207,7 +214,13 @@ function activate_game(game_id, user, n, m) {
         			alert("draw!");
             		ws.close();
         			break;
-    			case "error":
+                case "MESSAGE":
+                    add_message(
+                        message_data.user,
+                        message_data.message
+                    );
+                    break;
+    			case "ERROR":
     				add_system_message(message_data.error, "message-error");
     				break;
 				default:
@@ -227,5 +240,17 @@ function activate_game(game_id, user, n, m) {
     	alert("Your browser doesn't support websockets, please try to install new browser.")
         return false;
     }
+
+    $("#chat-send-button").click(function() {
+        var textarea = $("textarea#message_textarea");
+        if (textarea.val() == "") {
+            return false;
+        }
+        if (ws.readyState != WebSocket.OPEN) {
+            return false;
+        }
+        ws.send("%MESS%" + textarea.val());
+        textarea.val("");
+    });
 
 }
