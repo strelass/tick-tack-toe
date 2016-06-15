@@ -5,11 +5,14 @@ To run this app you will need:
 * [Redis](http://redis.io/). If it has specific setting you should set it in setting.py file.
 * Any SQL database you want, but don't forget to set its parameters in setting.py. Right here i'm using MySQL.
 After you got this go to the root of project and run following commands:
-1. <b>pip install requirments.txt</b>
-2. <b>python manage.py migrate</b>
-3. <b>python mamage.py collectstatic</b>
-4. <b>python manage.py runserver</b>
+
+1. `pip install requirments.txt`
+2. `python manage.py migrate`
+3. `python mamage.py collectstatic`
+4. `python manage.py runserver`
+
 Now you will need another bash window, where you can run:
-  <b>python manage.py starttornadoapp</b> Make sure that you have 8888 port free.
+  `python manage.py starttornadoapp` 
+Make sure that you have 8888 port free.
 
 Enjoy!
