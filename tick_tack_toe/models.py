@@ -66,7 +66,6 @@ class Game(models.Model):
 class Move(models.Model):
     x = models.IntegerField()
     y = models.IntegerField()
-    num = models.IntegerField()
     game = models.ForeignKey(
         Game,
         on_delete=models.CASCADE

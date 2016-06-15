@@ -30,44 +30,47 @@ function activate_game(game_id, user, n, m) {
         details = 50,
 		turn = false,
         gamers = [],
-        first_gamer = -1;
+        moves = [],
+        first_gamer = -1,
+        current_move = 0;
 
 	function DrawGrid(){
+        ctx.beginPath();
 		for(var i = 0; i < m; i++) {
 			for(var k = 0; k < n; k++) {
 				ctx.rect(i*cellW, k*cellH, cellW, cellH);
 			}
 		}
-		ctx.stroke(); 
+		ctx.stroke();
 	}
 
-    var points = [],
-        currentPoint = 1,
-        nextTime = new Date().getTime()+500,
-        pace = 5;
-    function draw() {
-
-        if(new Date().getTime() > nextTime){
-            nextTime = new Date().getTime() + pace;
-            currentPoint++;
-        }
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#2068A8';
-        ctx.fillStyle = '#2068A8';
-        for (var p = 1, plen = currentPoint; p < plen; p++) {
-            ctx.lineTo(points[p].x, points[p].y);
-        }
-        ctx.stroke();
-
-        requestAnimFrame(draw);
-    }
+    //var points = [],
+    //    currentPoint = 1,
+    //    nextTime = new Date().getTime()+500,
+    //    pace = 5;
+    //function draw() {
+    //
+    //    if(new Date().getTime() > nextTime){
+    //        nextTime = new Date().getTime() + pace;
+    //        currentPoint++;
+    //    }
+    //    ctx.clearRect(0,0,canvas.width, canvas.height);
+    //    ctx.beginPath();
+    //    ctx.moveTo(points[0].x, points[0].y);
+    //    ctx.lineWidth = 2;
+    //    ctx.strokeStyle = '#2068A8';
+    //    ctx.fillStyle = '#2068A8';
+    //    for (var p = 1, plen = currentPoint; p < plen; p++) {
+    //        ctx.lineTo(points[p].x, points[p].y);
+    //    }
+    //    ctx.stroke();
+    //
+    //    requestAnimFrame(draw);
+    //}
 
 	function DrawLineAnimated(xFrom, yFrom, xTo, yTo){
-		ctx.beginPath();
         ctx.lineWidth = lineWidth;
+        ctx.beginPath();
 		ctx.moveTo(xFrom, yFrom);
 		ctx.lineTo(xTo,	yTo);
 		ctx.stroke();
@@ -105,7 +108,20 @@ function activate_game(game_id, user, n, m) {
 		ctx.stroke();
 	}
 
-	DrawGrid();
+    function DrawMoves(num) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        DrawGrid();
+        if (typeof num == 'undefined' || num < 0 || num > moves.length)
+            num = moves.length;
+        for(var i = 0; i < num; i++) {
+            if (moves[i].gamer == first_gamer)
+                DrawCross(moves[i].x, moves[i].y);
+            else
+                DrawEllipse(moves[i].x, moves[i].y);
+        }
+    }
 
     $(".gamer").each(function() {
         gamer_node = $(this);
@@ -125,12 +141,26 @@ function activate_game(game_id, user, n, m) {
         x = parseInt(move.split("-")[1].split(":")[1]);
         if (first_gamer == -1)
             first_gamer = gamer;
-        if (first_gamer == gamer) {
-            DrawCross(x, y);
-        } else {
-            DrawEllipse(x, y);
-        }
+        moves.push({
+            x: x,
+            y: y,
+            gamer: gamer
+        });
+    }).click(function() {
+        current_move = $(this);
+        node = $(this).parent();
+        count = 0;
+        $.each(node.children("div.move"), function() {
+            count++;
+            if (current_move.is($(this))) {
+                return false;
+            }
+        });
+        DrawMoves(count);
     });
+
+    DrawGrid();
+    DrawMoves(-1);
 
     function getMousePos(evt) {
         var rect = canvas.getBoundingClientRect();

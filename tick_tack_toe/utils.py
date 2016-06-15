@@ -83,22 +83,12 @@ def make_move(game_id,
               x,
               y):
     game_id = str(game_id)
-    r.hincrby(
-        "".join(["thread_", game_id, "_game"]),
-        "move_num",
-        1
-    )
-    num = r.hget(
-        "".join(["thread_", game_id, "_game"]),
-        "move_num"
-    )
     print "MAKE_MOVE: %s:%s" % (x, y)
     move = Move()
     move.game_id = int(game_id)
     move.gamer_id = gamer_id
     move.x = x
     move.y = y
-    move.num = num
     move.save()
     update_game(game_id, x, y)
 
