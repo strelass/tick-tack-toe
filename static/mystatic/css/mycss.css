@@ -101,3 +101,6 @@ span.glyphicon {
 .enter {
     background-color: #9d9d9d;
 }
+.current {
+    background-color: #46b8da;
+}

@@ -8,6 +8,7 @@ class GameAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'name',
+        'first',
         'sizeX',
         'sizeY',
         'combo',

@@ -4,7 +4,7 @@
 {% block head %}
 <script type="text/javascript">
 $(document).ready(function() {
-    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }});
+    activate_game({{ game.id }}, {{ request.user.id }}, {{ game.sizeX }}, {{ game.sizeY }}, "{{ role }}");
 });
 </script>
 {% endblock %}
@@ -21,6 +21,7 @@ $(document).ready(function() {
     <div class="row">
         <div class="col col-md-8 col-xs-12">
             <canvas id="canvas" width="400" height="400"></canvas>
+            <div id="turn" style="text-align: center"><h3></h3></div>
         </div>
         <div class="col col-md-4 col-xs-12">
             <div class="col col-md-6 col-xs-6 content-right content-body">

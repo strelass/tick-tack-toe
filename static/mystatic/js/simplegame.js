@@ -1,4 +1,4 @@
-function activate_game(game_id, user, n, m) {
+function activate_game(game_id, user, n, m, role) {
 	var ws;
 
     window.requestAnimFrame = (function () {
@@ -28,7 +28,8 @@ function activate_game(game_id, user, n, m) {
 		cellW = maxW / m,
         lineWidth = 2,
         details = 50,
-		turn = false,
+		turn = -1,
+        main_gamers = [],
         gamers = [],
         moves = [],
         first_gamer = -1,
@@ -116,10 +117,18 @@ function activate_game(game_id, user, n, m) {
         if (typeof num == 'undefined' || num < 0 || num > moves.length)
             num = moves.length;
         for(var i = 0; i < num; i++) {
-            if (moves[i].gamer == first_gamer)
+            first_gamer_name = find_gamer(first_gamer).name;
+            if (moves[i].gamer == first_gamer_name)
                 DrawCross(moves[i].x, moves[i].y);
             else
                 DrawEllipse(moves[i].x, moves[i].y);
+        }
+        if (moves[num-1]) {
+            $(".move.current").each(function() {
+                $(this).attr("class", $(this).attr("class").replace("current", ""));
+            });
+            move_class = moves[num-1].move.attr("class");
+            moves[num-1].move.attr("class", move_class + " current");
         }
     }
 
@@ -131,6 +140,7 @@ function activate_game(game_id, user, n, m) {
             id: parseInt(id),
             node: gamer_node
         };
+        main_gamers.push(gamer);
         gamers.push(gamer);
     });
 
@@ -139,14 +149,14 @@ function activate_game(game_id, user, n, m) {
         gamer = move.split("-")[0].slice(0, -1);
         y = parseInt(move.split("-")[1].split(":")[0]);
         x = parseInt(move.split("-")[1].split(":")[1]);
-        if (first_gamer == -1)
-            first_gamer = gamer;
         moves.push({
             x: x,
             y: y,
-            gamer: gamer
+            gamer: gamer,
+            move: $(this)
         });
-    }).click(function() {
+    });
+    $("body").on("click", ".move", function() {
         current_move = $(this);
         node = $(this).parent();
         count = 0;
@@ -159,8 +169,12 @@ function activate_game(game_id, user, n, m) {
         DrawMoves(count);
     });
 
+    function set_turn() {
+        turn_info = find_gamer(turn).name + "'s turn";
+        $("#turn").children()[0].textContent = turn_info;
+    }
+
     DrawGrid();
-    DrawMoves(-1);
 
     function getMousePos(evt) {
         var rect = canvas.getBoundingClientRect();
@@ -198,6 +212,7 @@ function activate_game(game_id, user, n, m) {
     }
 
     function set_game_status(text) {
+        set_turn();
         $(".game-status").children()[0].textContent = text;
     }
 
@@ -216,19 +231,21 @@ function activate_game(game_id, user, n, m) {
 	}
 
     function make_move(cellX, cellY, uid) {
-        console.log("move by: " + uid + " me: " + user);
-        if (uid == user) {
+        if (uid == first_gamer) {
             DrawCross(cellY, cellX);
-            turn = false;
         } else {
             DrawEllipse(cellY, cellX);
-            turn = true;
         }
         move = document.createElement("div");
         move.setAttribute("class", "move");
         gamer = find_gamer(uid);
         move.innerHTML = gamer.name + " - " + cellX + ":" + cellY;
         $("#moves").append(move);
+        for(var i = 0; i < main_gamers.length; i++)
+            if (main_gamers[i].id != uid) {
+                turn = main_gamers[i].id;
+            }
+        set_turn();
     }
 
     function alert_left(uid) {
@@ -259,7 +276,6 @@ function activate_game(game_id, user, n, m) {
             name: name,
             node: $("#gamer-"+uid)
         });
-        add_system_message(name + " has joined the game.", "message-info");
     }
 
     function add_visitor(uid, name) {
@@ -306,14 +322,15 @@ function activate_game(game_id, user, n, m) {
                 case "CONNECTED":
                     id = message_data.gamer_id;
                     name = message_data.gamer_name;
+                    first_gamer = parseInt(message_data.first_turn);
                     if (user != parseInt(id))
                         ws.send("%HERE%");
+                    DrawMoves(-1);
                     update_user_status(id, name);
                     add_system_message(name + " has joined the game.", "message-info");
                     break;
                 case "GAME_STATUS":
-                    if (user == parseInt(message_data.turn))
-                        turn = true;
+                    turn = parseInt(message_data.turn);
                     switch (message_data.game_status) {
                         case "OPEN":
                             set_game_status(game_status.OPEN);
@@ -331,6 +348,7 @@ function activate_game(game_id, user, n, m) {
                             winner = parseInt(message_data.winner);
                             winner = find_gamer(winner);
                             set_game_status(game_status.WINNER + winner.name);
+                            $("#turn").children()[0].textContent = "";
                             break;
                     }
                     break;
@@ -350,6 +368,7 @@ function activate_game(game_id, user, n, m) {
 					break;
 				case "START":
 					uid = parseInt(message_data.turn);
+                    turn = parseInt(message_data.turn),
 					alert_start(uid);
 					break;
             	case "PROCESS":

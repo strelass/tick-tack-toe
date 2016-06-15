@@ -40,6 +40,10 @@ class Game(models.Model):
         User,
         related_name="%(app_label)s_%(class)s_turn"
     )
+    first = models.ForeignKey(
+        User,
+        related_name="%(app_label)s_%(class)s_first"
+    )
     STATUS = (
         ("OPEN", "Open"),
         ("START", "Start"),

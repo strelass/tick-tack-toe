@@ -46,6 +46,7 @@ def join_game(game_id, gamer_id, username):
         "gamer_id": str(gamer_id),
         "gamer_name": username,
     })
+    publish_game_status(Game.objects.get(id=game_id))
 
 
 def start_game(game_id, turn):
@@ -139,11 +140,19 @@ def update_game_util(game, field, startX, startY):
         game.save()
         print "Now is %s turn" % game.turn
     if game.status != old_status:
-        redis_publish_game(game.id, {
-            "stat": "GAME_STATUS",
-            "game_status": game.status,
-            "winner": str(game.winner.id) if (game.status == "WINNER") else "",
-        })
+        publish_game_status(game)
+
+
+def publish_game_status(game):
+    winner = str(game.winner.id) if (game.status == "WINNER") else ""
+    print "%s" % game.first
+    redis_publish_game(game.id, {
+        "stat": "GAME_STATUS",
+        "game_status": game.status,
+        "turn": str(game.turn.id),
+        "first_turn": str(game.first.id),
+        "winner": winner,
+    })
 
 
 def check_roole(matrix, startX, startY, rooleX, rooleY):

@@ -6,7 +6,7 @@ class GameForm(forms.ModelForm):
 
     class Meta:
         model = Game
-        fields = ['name', 'sizeX', 'sizeY', 'combo', 'participants', 'turn']
+        fields = ['name', 'first', 'sizeX', 'sizeY', 'combo', 'participants', 'turn']
 
 
 class SimpleGameForm(forms.ModelForm):

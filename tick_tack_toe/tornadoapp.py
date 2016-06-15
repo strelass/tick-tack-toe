@@ -4,7 +4,6 @@ import re
 import urllib
 import brukva
 
-import redis
 import tornado.web
 import tornado.websocket
 import tornado.ioloop
@@ -14,7 +13,7 @@ from django.conf import settings
 from importlib import import_module
 from django.contrib.auth.models import User
 from tick_tack_toe.models import Game
-from tick_tack_toe.utils import start_game, join_game, redis_publish_game
+from tick_tack_toe.utils import redis_publish_game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
@@ -47,12 +46,13 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         self.game_id = game_id
         self.client.listen(self.show_new_moves)
 
+        game = Game.objects.get(id=game_id)
         redis_publish_game(game_id, {
             "stat": "CONNECTED",
             "gamer_id": self.gamer_id,
             "gamer_name": self.gamer_name,
+            "first_turn": str(game.first.id),
         })
-        game = Game.objects.get(id=game_id)
         self.write_message(json.dumps({
                 "stat": "GAME_STATUS",
                 "game_status": game.status,

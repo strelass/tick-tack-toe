@@ -1,3 +1,4 @@
+from allauth.account.forms import LoginForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -10,11 +11,14 @@ from django.conf import settings
 
 from tick_tack_toe.forms import SimpleGameForm
 from tick_tack_toe.models import Game
-from tick_tack_toe.utils import join_game, json_response, try_to_make_move, make_move
+from tick_tack_toe.utils import join_game, json_response, try_to_make_move, make_move, start_game
 
 
 def home(request):
-    return render(request, 'home.html', context={})
+    context = {
+        "form": LoginForm
+    }
+    return render(request, 'home.html', context)
 
 
 @login_required
@@ -24,6 +28,7 @@ def lobby(request):
         if form.is_valid():
             game = form.save(commit=False)
             game.turn = request.user
+            game.first = request.user
             with transaction.atomic():
                 game.save()
                 game.participants.add(request.user)
@@ -53,18 +58,20 @@ def game_view(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     user = request.user
     if game.status == "OPEN" and request.user not in game.participants.all():
-        join_game(game.id, user.id, user.username)
         with transaction.atomic():
             game.status = "START"
             game.participants.add(user)
             game.turn = game.participants.first()
+            game.first = game.turn
             game.save()
+        join_game(game.id, user.id, user.username)
     moves = game.move_set.all()
     participants = game.participants.all()
     context = {
         "game": game,
         "moves": moves,
         "participants": participants,
+        "role": "gamer" if user in participants else "visitor",
     }
     return render(request, "tick_tack_toe/game.html", context)
 
