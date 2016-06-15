@@ -34,8 +34,8 @@ class SimpleGameForm(forms.ModelForm):
         combo = form_data['combo']
         sizeX = form_data['sizeX']
         sizeY = form_data['sizeY']
-        liniar_rool = form_data['liniar_rool']
-        diagonal_rool = form_data['diagonal_rool']
+        liniar_data = form_data['liniar_rool']
+        diagonal_data = form_data['diagonal_rool']
         if combo < sizeX and combo < sizeY:
             self.add_error(
                 'combo',
@@ -46,7 +46,7 @@ class SimpleGameForm(forms.ModelForm):
                 'combo',
                 'Combo cant be less that 3.',
             )
-        if not liniar_rool or diagonal_rool:
+        if not (liniar_data or diagonal_data):
             self.add_error(
                 'liniar_rool',
                 'You should choose one of the rools.',

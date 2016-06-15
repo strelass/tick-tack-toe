@@ -14,7 +14,7 @@ from django.conf import settings
 from importlib import import_module
 from django.contrib.auth.models import User
 from tick_tack_toe.models import Game
-from tick_tack_toe.utils import start_game, join_game
+from tick_tack_toe.utils import start_game, join_game, redis_publish_game
 
 session_engine = import_module(settings.SESSION_ENGINE)
 
@@ -47,15 +47,12 @@ class GameHandler(tornado.websocket.WebSocketHandler):
         self.game_id = game_id
         self.client.listen(self.show_new_moves)
 
-        # Makes the game start
+        redis_publish_game(game_id, {
+            "stat": "CONNECTED",
+            "gamer_id": self.gamer_id,
+            "gamer_name": self.gamer_name,
+        })
         game = Game.objects.get(id=game_id)
-        r = redis.StrictRedis()
-        r.publish(
-            "".join(["thread_", game_id, "_game"]), json.dumps({
-                "stat": "CONNECTED",
-                "gamer_id": self.gamer_id,
-                "gamer_name": self.gamer_name,
-            }))
         self.write_message(json.dumps({
                 "stat": "GAME_STATUS",
                 "game_status": game.status,
@@ -88,23 +85,19 @@ class GameHandler(tornado.websocket.WebSocketHandler):
                 })
             )
         elif move[1:5] == "HERE":
-            r = redis.StrictRedis()
-            r.publish(
-                "".join(["thread_", self.game_id, "_game"]), json.dumps({
-                    "stat": "HANDSHAKE",
-                    "gamer_id": str(self.gamer_id),
-                    "gamer_name": self.gamer_name,
-                }))
+            redis_publish_game(self.game_id, {
+                "stat": "HANDSHAKE",
+                "gamer_id": str(self.gamer_id),
+                "gamer_name": self.gamer_name,
+            })
             return
         else:
             # move[1:5] == "MESS"
-            r = redis.StrictRedis()
-            r.publish(
-                "".join(["thread_", self.game_id, "_game"]), json.dumps({
-                    "stat": "MESSAGE",
-                    "message": move[6:],
-                    "user": self.gamer_name
-                }))
+            redis_publish_game(self.game_id, {
+                "stat": "MESSAGE",
+                "message": move[6:],
+                "user": self.gamer_name
+            })
             return
         http_client.fetch(request, self.handle_request)
 
@@ -116,14 +109,10 @@ class GameHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         try:
-            r = redis.StrictRedis()
-            r.publish(self.channel, json.dumps({
+            redis_publish_game(self.game_id, {
                 "stat": "LEFT",
                 "leaver": self.gamer_id,
-            }))
-        except:
-            pass
-        try:
+            })
             self.client.unsubscribe(self.channel)
         except AttributeError:
             pass

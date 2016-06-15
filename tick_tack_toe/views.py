@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render
@@ -8,7 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
 from tick_tack_toe.forms import SimpleGameForm
-from tick_tack_toe.utils import *
+from tick_tack_toe.models import Game
+from tick_tack_toe.utils import join_game, json_response, try_to_make_move, make_move
 
 
 def home(request):
@@ -57,12 +59,6 @@ def game_view(request, game_id):
             game.participants.add(user)
             game.turn = game.participants.first()
             game.save()
-            r = redis.StrictRedis()
-            r.hset(
-                "".join(["thread_", str(game_id), "_game"]),
-                "turn",
-                str(game.turn.id)
-            )
     moves = game.move_set.all()
     participants = game.participants.all()
     context = {

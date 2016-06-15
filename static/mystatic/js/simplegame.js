@@ -1,12 +1,23 @@
 function activate_game(game_id, user, n, m) {
 	var ws;
 
+    window.requestAnimFrame = (function () {
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function ( /* function */ callback, /* DOMElement */ element) {
+            window.setTimeout(callback, 1000 / 600);
+        };
+    })();
+
     var game_status = {
         OPEN: "Waiting for opponent",
         START: "Game started",
         IN_PROGRESS: "Game in progress",
         DRAW: "Draw!",
-        WINNER: "Winner: ",
+        WINNER: "Winner: "
     };
 
 	var canvas = document.getElementById("canvas"),
@@ -15,6 +26,8 @@ function activate_game(game_id, user, n, m) {
 		maxW = ctx.canvas.width,
 		cellH = maxH / n,
 		cellW = maxW / m,
+        lineWidth = 2,
+        details = 50,
 		turn = false,
         gamers = [],
         first_gamer = -1;
@@ -28,11 +41,50 @@ function activate_game(game_id, user, n, m) {
 		ctx.stroke(); 
 	}
 
+    var points = [],
+        currentPoint = 1,
+        nextTime = new Date().getTime()+500,
+        pace = 5;
+    function draw() {
+
+        if(new Date().getTime() > nextTime){
+            nextTime = new Date().getTime() + pace;
+            currentPoint++;
+        }
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2068A8';
+        ctx.fillStyle = '#2068A8';
+        for (var p = 1, plen = currentPoint; p < plen; p++) {
+            ctx.lineTo(points[p].x, points[p].y);
+        }
+        ctx.stroke();
+
+        requestAnimFrame(draw);
+    }
+
 	function DrawLineAnimated(xFrom, yFrom, xTo, yTo){
 		ctx.beginPath();
+        ctx.lineWidth = lineWidth;
 		ctx.moveTo(xFrom, yFrom);
 		ctx.lineTo(xTo,	yTo);
 		ctx.stroke();
+        //devX = (xTo - xFrom) / details;
+        //devY = (yTo - yFrom) / details;
+        //points = [];
+        //x = xFrom;
+        //y = yFrom;
+        //for (var i = 0; i < details; i++) {
+        //    points.push({
+        //        x: x,
+        //        y: y
+        //    });
+        //    x += devX;
+        //    y += devY;
+        //}
+        //draw();
 	}
 
 	function DrawCross(x, y){
@@ -48,6 +100,7 @@ function activate_game(game_id, user, n, m) {
         radius = (cellW > cellH) ? cellH/2 : cellW/2;
         radius -= dev;
 		ctx.beginPath();
+        ctx.lineWidth = lineWidth;
 		ctx.arc(x*cellW + halfCellW, y*cellH + halfCellH, radius, radius, Math.PI * 2, true);
 		ctx.stroke();
 	}
@@ -148,12 +201,6 @@ function activate_game(game_id, user, n, m) {
         $("#moves").append(move);
     }
 
-    function alert_resume(uid) {
-        if (uid == user) {
-            turn = true;
-        }
-    }
-
     function alert_left(uid) {
         uid = parseInt(uid);
         gamer = find_gamer(uid);
@@ -232,6 +279,7 @@ function activate_game(game_id, user, n, m) {
                     if (user != parseInt(id))
                         ws.send("%HERE%");
                     update_user_status(id, name);
+                    add_system_message(name + " has joined the game.", "message-info");
                     break;
                 case "GAME_STATUS":
                     if (user == parseInt(message_data.turn))
@@ -280,10 +328,6 @@ function activate_game(game_id, user, n, m) {
 		            uid = message_data.uid;
                     make_move(cellX, cellY, uid);
             		break;
-                case "RESUME":
-                    uid = parseInt(message_data.turn);
-                    alert_resume(uid);
-                    break;
                 case "MESSAGE":
                     add_message(
                         message_data.user,
