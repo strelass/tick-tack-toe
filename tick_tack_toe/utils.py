@@ -91,14 +91,13 @@ def make_move(game_id,
     move.x = x
     move.y = y
     move.save()
-    update_game(game_id, x, y)
-
     redis_publish_game(game_id, {
         "stat": "PROCESS",
         "x": str(x),
         "y": str(y),
         "uid": str(gamer_id),
     })
+    update_game(game_id, x, y)
 
 
 def update_game(game_id, x, y):

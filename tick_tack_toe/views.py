@@ -92,6 +92,9 @@ def make_move_view_api(request, game_id):
     except Game.DoesNotExist:
         return json_response({"error": "No such game."})
 
+    if game.status in ["WINNER", "DRAW"]:
+        return json_response({"error": "The game is over."})
+
     try:
         gamer = User.objects.get(id=request.POST.get("gamer_id"))
     except User.DoesNotExist:

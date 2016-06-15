@@ -158,7 +158,7 @@ function activate_game(game_id, user, n, m, role) {
     });
     $("body").on("click", ".move", function() {
         current_move = $(this);
-        node = $(this).parent();
+        node = $("#moves");
         count = 0;
         $.each(node.children("div.move"), function() {
             count++;
@@ -236,11 +236,17 @@ function activate_game(game_id, user, n, m, role) {
         } else {
             DrawEllipse(cellY, cellX);
         }
-        move = document.createElement("div");
-        move.setAttribute("class", "move");
         gamer = find_gamer(uid);
-        move.innerHTML = gamer.name + " - " + cellX + ":" + cellY;
-        $("#moves").append(move);
+        move = $('<div></div>')
+            .addClass("move")
+            .html(gamer.name + " - " + cellX + ":" + cellY)
+            .appendTo($("#moves"));
+        moves.push({
+            x: cellY,
+            y: cellX,
+            gamer: gamer.name,
+            move: move
+        });
         for(var i = 0; i < main_gamers.length; i++)
             if (main_gamers[i].id != uid) {
                 turn = main_gamers[i].id;
@@ -343,6 +349,7 @@ function activate_game(game_id, user, n, m, role) {
                             break;
                         case "DRAW":
                             set_game_status(game_status.DRAW);
+                            $("#turn").children()[0].textContent = "";
                             break;
                         case "WINNER":
                             winner = parseInt(message_data.winner);
@@ -374,7 +381,7 @@ function activate_game(game_id, user, n, m, role) {
             	case "PROCESS":
             		cellX = parseInt(message_data.x);
 		            cellY = parseInt(message_data.y);
-		            uid = message_data.uid;
+		            uid = parseInt(message_data.uid);
                     make_move(cellX, cellY, uid);
             		break;
                 case "MESSAGE":
@@ -391,8 +398,7 @@ function activate_game(game_id, user, n, m, role) {
             }
         };
         ws.onclose = function(){
-            // Try to reconnect in 5 seconds
-            setTimeout(function() {start_chat_ws()}, 5000);
+            setTimeout(function() {start_game_ws()}, 5000);
         };
     }
 
