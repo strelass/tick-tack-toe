@@ -13,13 +13,13 @@ SECRET_KEY = '=b_8$k&wjhoz#&fk2yk&9xpxo@i1+!(=g4_1!-j-pk%er&u*0s'
 ALLOWED_HOSTS = []
 
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'knu.timetable@gmail.com'
-EMAIL_HOST_PASSWORD = 'knu_IS-4_2016'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 ADMINS = (
-    # ('Vlad Strelnikov', 'vlad.sstrelnikov@gmail.com'),
+    
 )
 
 MANAGERS = ADMINS
